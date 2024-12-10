@@ -71,6 +71,13 @@ func main() {
 	// readXmlFile()
 
 	for _, file := range files {
+    //get the date the file was modified
+    info, err := os.Stat(file); if err != nil {
+      fmt.Println(err)
+    }
+
+    fmt.Printf("%s - %s", info.ModTime(), file);
+
 		splitString := strings.Split(file, "/")
 		finalPath := fmt.Sprintf("/%s",strings.Join(splitString[indexToTakeOnwards:], "/"))
 
@@ -81,16 +88,16 @@ func main() {
     }
 	}
 
-	smartPlaylist.Added = time.Now().Format("2006.01.02 15:04:05")
-	smartPlaylist.LockData = false
-	smartPlaylist.LocalTitle = playlistTitle
-	//TODO Calculate running time of the playlist
-	smartPlaylist.RunningTime = 0
-	smartPlaylist.PlaylistMediaType = "Audio"
-	//TODO Figure out Genres added to the playlist
-	smartPlaylist.Genres = []Genre{{Genre: "Hardstyle"}}
-	smartPlaylist.Shares = []Share{{UserId: userId, CanEdit: true}}
-  writeXML()
+	//smartPlaylist.Added = time.Now().Format("2006.01.02 15:04:05")
+	//smartPlaylist.LockData = false
+	//smartPlaylist.LocalTitle = playlistTitle
+	////TODO Calculate running time of the playlist
+	//smartPlaylist.RunningTime = 0
+	//smartPlaylist.PlaylistMediaType = "Audio"
+	////TODO Figure out Genres added to the playlist
+	//smartPlaylist.Genres = []Genre{{Genre: "Hardstyle"}}
+	//smartPlaylist.Shares = []Share{{UserId: userId, CanEdit: true}}
+  //writeXML()
 }
 
 func getAllMusicFilesFromFolder(folder string) ([]string, error) {
