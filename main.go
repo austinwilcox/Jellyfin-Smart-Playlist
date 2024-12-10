@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -47,18 +46,75 @@ type Share struct {
 }
 
 var smartPlaylist Item
-var nameOfPlaylist = ""
-var playlistTitle = "Smart Playlist v0.2"
-var userId = ""
+var nameOfPlaylist = "DWCFPlaylist.xml"
+var playlistTitle = "Dirty Workz Copyright Free - Gen"
+var userId = "01c3cfad3190498bb91cc9d4080608d9"
 var canEdit = true
-var folderToWatch = ""
-var subFolder = ""
-var indexToTakeOnwards = 0
+var folderToWatch = "/home/austin/Files/Jellyfin/Music/Dirty Workz - Copyright Free"
+var subFolder = "/Jellyfin/Music/Dirty Workz - Copyright Free"
+var indexToTakeOnwards = 4
 
 // TODO Populate this data into a hash table, that way I can get a linear look up
-var acceptableAudioTypes = []string{"mp3", "wav", "m4a", "flac", "mp4", "wma", "ogg", "aac"}
+var acceptableAudioTypes = []string{".mp3", ".wav", ".m4a", ".flac", ".mp4", ".wma", ".ogg", ".aac"}
+// var acceptableAudioTypes = []string{".mp3"}
+
+//TODO: Create a playlist with just arguments that I provide, and that way I can create them on the fly
+//-t title
+//-d directory
+//-r recursive
 
 func main() {
+	files, err := getAllMusicFilesFromFolder(folderToWatch)
+	if err != nil {
+		fmt.Println(err)
+	}
+	// readXmlFile()
+
+	for _, file := range files {
+		splitString := strings.Split(file, "/")
+		finalPath := fmt.Sprintf("/%s",strings.Join(splitString[indexToTakeOnwards:], "/"))
+
+    fmt.Println(isAllowedFileExtension(filepath.Ext(file)))
+    if isAllowedFileExtension(filepath.Ext(file)) {
+      smartPlaylist.PlaylistItems = append(smartPlaylist.PlaylistItems, PlaylistItem{Path: finalPath, DateAdded: time.Now().Format("2006.01.02 15:04:05")})
+      fmt.Println("Added file to playlist")
+    }
+	}
+
+	smartPlaylist.Added = time.Now().Format("2006.01.02 15:04:05")
+	smartPlaylist.LockData = false
+	smartPlaylist.LocalTitle = playlistTitle
+	//TODO Calculate running time of the playlist
+	smartPlaylist.RunningTime = 0
+	smartPlaylist.PlaylistMediaType = "Audio"
+	//TODO Figure out Genres added to the playlist
+	smartPlaylist.Genres = []Genre{{Genre: "Hardstyle"}}
+	smartPlaylist.Shares = []Share{{UserId: userId, CanEdit: true}}
+  writeXML()
+}
+
+func getAllMusicFilesFromFolder(folder string) ([]string, error) {
+	var files []string
+	//get all the files from only the folder
+	entries, err := os.ReadDir(folder)
+	if err != nil {
+		return []string{}, err
+	}
+
+	for _, entry := range entries {
+		if isAllowedFileExtension(filepath.Ext(entry.Name())) {
+			files = append(files, fmt.Sprintf("%s/%s", folder, entry.Name()))
+		}
+	}
+
+	return files, nil
+}
+
+func addFileToPlaylist() {
+
+}
+
+func createSmartPlaylist() {
 	readConfig()
 	// fmt.Println(nameOfPlaylist)
 	// fmt.Println(playlistTitle)
@@ -132,6 +188,7 @@ func main() {
 	}()
 
 	<-make(chan struct{})
+
 }
 
 func readConfig() {
@@ -202,7 +259,7 @@ func getAllFoldersToWatch() ([]string, error) {
 
 func isAllowedFileExtension(ext string) bool {
 	for _, allowedExt := range acceptableAudioTypes {
-		if strings.EqualFold(ext, "."+allowedExt) {
+		if strings.EqualFold(ext, allowedExt) {
 			return true
 		}
 	}
@@ -226,6 +283,6 @@ func sortPlaylist() {
 func writeXML() {
 	file, _ := xml.MarshalIndent(smartPlaylist, "", " ")
 	file = []byte(xml.Header + string(file))
-	_ = ioutil.WriteFile(nameOfPlaylist, file, 0644)
+	_ = os.WriteFile(nameOfPlaylist, file, 0644)
 
 }
