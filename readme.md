@@ -1,3 +1,6 @@
+## Archived
+I no longer need this repo, as Finamp now supports showing me the recent tracks that were added to jellyfin.
+
 # Jellyfin Smart Playlist
 I created this repo as an effort to keep track of recent songs that I have added to my home jellyfin server.
 
